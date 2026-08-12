@@ -47,6 +47,19 @@
   <p>Karaoke never left. We just gave it agent superpowers. Built for the
   <a href="https://opensourceorchestra.org">Open Source Orchestra</a> — no auditions, every voice a node —
   and for every living room, campfire and Devcon music space on Earth.</p>
+  
+  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">📥 THE DROP ZONE — upload, get karaoke back</h2>
+  <p>Drop an <b>mp3 / mp4 / any track or talk</b>. The twins run the protocol — words, chords, flames, MP4, PDF —
+  and your karaoke pack appears in the drops below. Members: unlimited runs. First pack is already waiting: <b>Todo Es Posible</b> 🔥</p>
+  <div id="dz" style="border:2px dashed #c084fc66;border-radius:16px;padding:2rem 1rem;text-align:center;margin:1.2rem 0;background:#ffffff06;cursor:pointer;">
+    <div style="font-size:2rem;">🎤</div>
+    <div id="dz-label" style="color:#cfc4dd;margin-top:.4rem;">drag a file here, or tap to choose</div>
+    <input type="file" id="dz-file" style="display:none;" accept="audio/*,video/*">
+  </div>
+  <div id="dz-status" style="color:var(--dim);font-size:.85rem;min-height:1.2em;"></div>
+  <h3 style="margin-top:1.6rem;font-size:1.05rem;letter-spacing:.05em;color:var(--fire2);">⬇ THE DROPS</h3>
+  <div id="drops" style="margin-top:.6rem;display:grid;gap:.5rem;"><div style="color:var(--dim)">loading…</div></div>
+
   <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">🎤 MEMBERSHIP — $3.69/mo, unlimited songs</h2>
   <p>Build your karaoke list. Every night, the twins <b style="color:#ff9ad5">KARA 🩷</b> (the words) and
   <b style="color:#7ab8ff">OKE 💙</b> (the chords &amp; beats) run the protocol over your whole list — transcriptions,
@@ -124,6 +137,39 @@
   inp.addEventListener('keydown', function(e){ if (e.key === 'Enter') send(); });
   fab.onmouseenter = function(){ fab.style.transform = 'scale(1.08)'; };
   fab.onmouseleave = function(){ fab.style.transform = 'scale(1)'; };
+})();
+</script>
+
+
+<script>
+(function(){
+  var HUB = "https://kprot-drop.shakaverse.workers.dev";
+  var dz = document.getElementById('dz'), fi = document.getElementById('dz-file'),
+      st = document.getElementById('dz-status'), list = document.getElementById('drops');
+  function loadDrops(){
+    fetch(HUB + '/drops').then(r => r.json()).then(d => {
+      if (!d.items || !d.items.length) { list.innerHTML = '<div style="color:var(--dim)">no drops yet — be the first 🔥</div>'; return; }
+      list.innerHTML = d.items.map(function(i){
+        var icon = i.key.endsWith('.mp4') ? '🎬' : i.key.endsWith('.pdf') ? '📄' : i.key.endsWith('.html') ? '🔥' : '🎵';
+        return '<a href="' + HUB + i.url + '" style="display:flex;gap:.7rem;align-items:center;background:#ffffff08;border:1px solid #ffffff12;border-radius:12px;padding:.7rem 1rem;text-decoration:none;color:#f5efe6;">'
+          + '<span>' + icon + '</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + i.key + '</span>'
+          + '<span style="color:var(--dim);font-size:.8rem;">' + (i.size/1048576).toFixed(1) + ' MB</span></a>';
+      }).join('');
+    }).catch(() => { list.innerHTML = '<div style="color:var(--dim)">drops loading hiccup — refresh</div>'; });
+  }
+  function upload(f){
+    st.textContent = '⬆ uploading ' + f.name + ' (' + (f.size/1048576).toFixed(1) + ' MB)…';
+    fetch(HUB + '/drop?name=' + encodeURIComponent(f.name), { method:'POST', body: f }).then(r => r.json()).then(d => {
+      st.textContent = d.ok ? '✅ received! the twins run the protocol — your karaoke pack lands in THE DROPS soon 🔥' : ('⚠️ ' + (d.error || 'upload hiccup'));
+      setTimeout(loadDrops, 3000);
+    }).catch(e => { st.textContent = '⚠️ upload failed — try again'; });
+  }
+  dz.onclick = () => fi.click();
+  fi.onchange = () => { if (fi.files[0]) upload(fi.files[0]); };
+  dz.ondragover = e => { e.preventDefault(); dz.style.borderColor = '#c084fc'; };
+  dz.ondragleave = () => { dz.style.borderColor = '#c084fc66'; };
+  dz.ondrop = e => { e.preventDefault(); dz.style.borderColor = '#c084fc66'; if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]); };
+  loadDrops(); setInterval(loadDrops, 30000);
 })();
 </script>
 
