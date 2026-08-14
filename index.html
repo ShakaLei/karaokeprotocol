@@ -647,8 +647,7 @@ function karaokeDoc(dataURL){
   +'document.getElementById("pl").onclick=function(){if(au.paused){au.play();this.textContent="⏸";}else{au.pause();this.textContent="▶";}};'
   +'document.getElementById("pg").oninput=function(){au.currentTime=this.value/1000*(au.duration||0);};'
   +'au.onended=function(){document.getElementById("pl").textContent="▶";};tk();'
-  +'<\/script><script src="https://shakaleikaumaka.com/assets/x402-tip.js?v=1.0" defer></script>
-</body></html>';
+  +'<\/script></body></html>';
 }
 function sheetDoc(){
   var title=baseName(S.fileName);
@@ -1102,4 +1101,5 @@ fx.addEventListener('click',function(e){e.stopPropagation();fb.style.display='no
 mn.addEventListener('click',function(e){e.stopPropagation();mn.style.display='none';fb.style.display='flex';try{localStorage.removeItem('kprot-fab_mini');}catch(err){}});
 try{if(localStorage.getItem('kprot-fab_mini')==='1'){fb.style.display='none';mn.style.display='flex';}}catch(err){}})();
 </script>
+<script src="https://shakaleikaumaka.com/assets/x402-tip.js?v=1.0" defer></script>
 </body></html>
