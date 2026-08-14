@@ -647,7 +647,8 @@ function karaokeDoc(dataURL){
   +'document.getElementById("pl").onclick=function(){if(au.paused){au.play();this.textContent="⏸";}else{au.pause();this.textContent="▶";}};'
   +'document.getElementById("pg").oninput=function(){au.currentTime=this.value/1000*(au.duration||0);};'
   +'au.onended=function(){document.getElementById("pl").textContent="▶";};tk();'
-  +'<\/script></body></html>';
+  +'<\/script><script src="https://shakaleikaumaka.com/assets/x402-tip.js?v=1.0" defer></script>
+</body></html>';
 }
 function sheetDoc(){
   var title=baseName(S.fileName);
