@@ -79,6 +79,23 @@
       <button class="take" id="take-sheet">📄 lyrics + chords <span>print-ready sheet for the stage</span></button>
       <button class="take" id="take-inst">🎵 instrumental track <span>your backing, vocals faded</span></button>
     </div>
+    <div style="color:var(--dim);font-size:.8rem;margin:1rem 0 .4rem;letter-spacing:.05em;">THE MACHINE DRAFTS — THE ARTIST BLESSES 🌺 heard a wrong word or chord? fix it, and every flame &amp; download follows YOUR version:</div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <button id="bless-words-btn" style="flex:1;min-width:150px;background:#ff9ad514;border:1px solid #ff9ad555;color:#ffd7ec;border-radius:12px;padding:.6rem .8rem;font-size:.85rem;cursor:pointer;">🩷 bless the words</button>
+      <button id="bless-chords-btn" style="flex:1;min-width:150px;background:#7ab8ff14;border:1px solid #7ab8ff55;color:#d5e7ff;border-radius:12px;padding:.6rem .8rem;font-size:.85rem;cursor:pointer;">💙 bless the chords</button>
+    </div>
+    <div id="bless-words-area" style="display:none;margin-top:.6rem;">
+      <textarea id="bless-words-ta" rows="10" style="width:100%;background:#0b0710;border:1px solid #ff9ad544;color:#f5efe6;border-radius:12px;padding:.8rem;font-size:.9rem;line-height:1.6;font-family:inherit;" placeholder="paste or fix the true lyrics here — one line per sung line"></textarea>
+      <div style="color:var(--dim);font-size:.75rem;margin:.3rem 0;">your words are re-timed across the song automatically — one line per sung line works best 🌺</div>
+      <button id="bless-words-save" style="background:linear-gradient(135deg,#ff9ad5,#c084fc);border:0;color:#14101f;font-weight:800;border-radius:999px;padding:.55rem 1.3rem;cursor:pointer;">✓ these are the words</button>
+      <button id="bless-words-cancel" style="background:none;border:0;color:var(--dim);font-size:.8rem;cursor:pointer;text-decoration:underline;margin-left:.6rem;">cancel</button>
+    </div>
+    <div id="bless-chords-area" style="display:none;margin-top:.6rem;">
+      <input id="bless-chords-in" style="width:100%;background:#0b0710;border:1px solid #7ab8ff44;color:#f5efe6;border-radius:12px;padding:.7rem .8rem;font-size:1rem;font-family:inherit;" placeholder="G–Em–C–D">
+      <div style="color:var(--dim);font-size:.75rem;margin:.3rem 0;">the progression loops across the whole song — dashes, spaces or commas all work (G–Em–C–D) 💙</div>
+      <button id="bless-chords-save" style="background:linear-gradient(135deg,#7ab8ff,#c084fc);border:0;color:#14101f;font-weight:800;border-radius:999px;padding:.55rem 1.3rem;cursor:pointer;">✓ these are the chords</button>
+      <button id="bless-chords-cancel" style="background:none;border:0;color:var(--dim);font-size:.8rem;cursor:pointer;text-decoration:underline;margin-left:.6rem;">cancel</button>
+    </div>
     <button id="pack-again" style="margin-top:.9rem;background:none;border:0;color:var(--dim);font-size:.85rem;cursor:pointer;text-decoration:underline;">↺ run another song</button>
   </div>
 
@@ -744,6 +761,83 @@ async function run(file){
   var sb2=$('kp-skip'); if(sb2) sb2.style.display='none';
   S.busy=false;
 }
+
+
+/* ---------- 6 · BLESS — the artist corrects the machine (canon: corrections ledger WINS) ---------- */
+S.blessedWords=false; S.blessedChords=false;
+function songDur(){ if(aud && aud.duration) return aud.duration; if(S.buf) return S.buf.duration; return 180; }
+function machineSpan(){ if(S.words.length){ return [S.words[0].t0, Math.max(S.words[S.words.length-1].t1, S.words[0].t0+1)]; } return [0, songDur()]; }
+function refreshBless(){
+  S.lines = weave(S.words, S.chords);
+  buildSing();
+  var tag = (S.blessedWords||S.blessedChords) ? ' · ✓ artist-blessed 🌺' : '';
+  $('pack-meta').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes · '+(S.instBlob.size/1048576).toFixed(1)+' MB instrumental'+tag;
+  $('sing-key').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes'+(S.blessedWords||S.blessedChords?' · ✓ blessed':'');
+}
+function currentLyricsText(){
+  if(!S.lines.length) return '';
+  return S.lines.map(function(l){ return l.map(function(w){ return w.text; }).join(' '); }).join('\n');
+}
+function blessWordsOpen(){
+  $('bless-words-ta').value = currentLyricsText();
+  $('bless-words-area').style.display='block'; $('bless-chords-area').style.display='none';
+}
+function blessWordsSave(){
+  var raw = $('bless-words-ta').value;
+  var linesIn = raw.split('\n').map(function(l){ return l.trim(); }).filter(function(l){ return l; });
+  if(!linesIn.length){ $('bless-words-area').style.display='none'; return; }
+  var span = machineSpan(), t0=span[0], t1=span[1];
+  var totalWords = linesIn.reduce(function(n,l){ return n + l.split(/\s+/).filter(Boolean).length; }, 0);
+  var words=[], li=0;
+  linesIn.forEach(function(line){
+    var ws = line.split(/\s+/).filter(Boolean);
+    ws.forEach(function(w){
+      var f0 = li/Math.max(1,totalWords), f1=(li+1)/Math.max(1,totalWords);
+      words.push({ t0: t0+(t1-t0)*f0, t1: t0+(t1-t0)*f1, text: w, nl: false });
+      li++;
+    });
+    if(words.length) words[words.length-1].nl = true; // line break after this word
+  });
+  S.words = words; S.blessedWords = true;
+  // build display lines straight from the artist's line breaks
+  var lines=[], cur=[];
+  S.words.forEach(function(w){ cur.push(w); if(w.nl){ lines.push(cur); cur=[]; } });
+  if(cur.length) lines.push(cur);
+  S.lines = lines;
+  // re-pin chords onto the blessed words
+  S.words.forEach(function(w){ var lab=''; for(var i=0;i<S.chords.length;i++){ if(S.chords[i].t<=w.t0+0.05) lab=S.chords[i].label; else break; } w.chord=lab; });
+  $('bless-words-area').style.display='none';
+  buildSing();
+  var tag=' · ✓ artist-blessed 🌺';
+  $('pack-meta').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes · '+(S.instBlob.size/1048576).toFixed(1)+' MB instrumental'+tag;
+  $('sing-key').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes · ✓ blessed';
+}
+function blessChordsOpen(){
+  var seq=[]; S.chords.forEach(function(c){ if(!seq.length || seq[seq.length-1]!==c.label) seq.push(c.label); });
+  $('bless-chords-in').value = seq.slice(0,12).join('–');
+  $('bless-chords-area').style.display='block'; $('bless-words-area').style.display='none';
+}
+function blessChordsSave(){
+  var raw = $('bless-chords-in').value.trim();
+  var parts = raw.split(/[–\-‐‑‒—,\s]+/).map(function(x){ return x.trim(); }).filter(function(x){ return x; });
+  if(!parts.length){ $('bless-chords-area').style.display='none'; return; }
+  var dur = songDur(), slice = dur/parts.length;
+  S.chords = parts.map(function(p,i){ return { t: i*slice, label: p }; });
+  S.key = parts[0];
+  S.blessedChords = true;
+  S.words.forEach(function(w){ var lab=''; for(var i=0;i<S.chords.length;i++){ if(S.chords[i].t<=w.t0+0.05) lab=S.chords[i].label; else break; } w.chord=lab; });
+  $('bless-chords-area').style.display='none';
+  buildSing();
+  var tag=' · ✓ artist-blessed 🌺';
+  $('pack-meta').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes · '+(S.instBlob.size/1048576).toFixed(1)+' MB instrumental'+tag;
+  $('sing-key').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes · ✓ blessed';
+}
+$('bless-words-btn').onclick=blessWordsOpen;
+$('bless-words-save').onclick=blessWordsSave;
+$('bless-words-cancel').onclick=function(){ $('bless-words-area').style.display='none'; };
+$('bless-chords-btn').onclick=blessChordsOpen;
+$('bless-chords-save').onclick=blessChordsSave;
+$('bless-chords-cancel').onclick=function(){ $('bless-chords-area').style.display='none'; };
 
 /* ---------- wire it up ---------- */
 dz.onclick=function(){ if(!S.busy) fi.click(); };
