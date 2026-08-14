@@ -62,6 +62,7 @@
 
   <div id="engine" style="display:none;margin:1.2rem 0;">
     <div class="kp-stage" id="kpst1"><span class="kp-ic">👂</span><div class="kp-body"><b>LISTEN</b><span class="kp-msg">KARA is learning the words…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
+    <button id="kp-skip" style="display:none;margin:.3rem 0 .1rem;background:#ffffff10;border:1px solid #c084fc55;color:#e9d5ff;border-radius:999px;padding:.45em 1.1em;font-size:.78rem;cursor:pointer;">⏭ skip the words — chords &amp; flames only</button>
     <div class="kp-stage" id="kpst2"><span class="kp-ic">🎧</span><div class="kp-body"><b>HEAR</b><span class="kp-msg">OKE is finding the chords…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
     <div class="kp-stage" id="kpst3"><span class="kp-ic">🎚️</span><div class="kp-body"><b>MIX</b><span class="kp-msg">fading the vocals into the background…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
     <div class="kp-stage" id="kpst4"><span class="kp-ic">🧵</span><div class="kp-body"><b>WEAVE</b><span class="kp-msg">pinning chords to the words…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
@@ -266,7 +267,8 @@ function stageReset(){ for(var i=1;i<=5;i++){ var el=$('kpst'+i);
 async function decodeFile(file){
   var ab = await file.arrayBuffer();
   var AC = window.AudioContext || window.webkitAudioContext;
-  var ctx = new AC();
+  var ctx;
+  try { ctx = new AC({ sampleRate: 22050 }); } catch(e){ ctx = new AC(); }
   try { return await ctx.decodeAudioData(ab); }
   finally { if(ctx.close) ctx.close(); }
 }
@@ -289,10 +291,16 @@ function getASR(modelId, onprog){
     asrCache[modelId]=(async function(){
       var mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
       mod.env.allowLocalModels = false;
+      var files = {};
       return await mod.pipeline('automatic-speech-recognition', modelId, {
         quantized:true,
         progress_callback:function(p){
-          if(p && p.status==='progress' && p.progress!=null && onprog) onprog(p.progress);
+          if(!p || !onprog) return;
+          if(p.status==='progress' && p.file){ files[p.file] = { loaded:p.loaded||0, total:p.total||0 }; }
+          var L=0,T=0,k;
+          for(k in files){ L+=files[k].loaded; T+=files[k].total; }
+          if(T>0) onprog(L/T*100, L, T);
+          else if(p.progress!=null) onprog(p.progress, 0, 0);
         }
       });
     })();
@@ -310,12 +318,18 @@ async function transcribe(asr, pcm16){
 async function listen(pcm16){
   // English ear first (whisper-tiny.en — the reliable one); if the song isn't English,
   // KARA switches to her multilingual ear (whisper-tiny, autodetect) 🌐
-  var asr = await getASR('Xenova/whisper-tiny.en', function(p){ stage(1,'KARA is learning the words… model '+Math.round(p)+'%', p); });
-  stage(1,'KARA is listening to your song…', 100);
+  var asr = await getASR('Xenova/whisper-tiny.en', function(p,L,T){
+    var mb = T>0 ? (' — '+(L/1048576).toFixed(0)+' / '+(T/1048576).toFixed(0)+' MB') : '';
+    stage(1,'KARA is downloading her ear (first visit only, then cached forever)'+mb+'…', p);
+  });
+  stage(1,'KARA is listening… on phones this takes about as long as the song 🩷', 100);
   var out = await transcribe(asr, pcm16);
   if(!out || !out.text || !out.text.trim()){
     stage(1,'not English? KARA is switching ears 🌐…', 100);
-    var asrMulti = await getASR('Xenova/whisper-tiny', function(p){ stage(1,'KARA is learning new languages… model '+Math.round(p)+'%', p); });
+    var asrMulti = await getASR('Xenova/whisper-tiny', function(p,L,T){
+      var mb = T>0 ? (' — '+(L/1048576).toFixed(0)+' / '+(T/1048576).toFixed(0)+' MB') : '';
+      stage(1,'KARA is learning new languages'+mb+'…', p);
+    });
     out = await transcribe(asrMulti, pcm16);
   }
   var words=[];
@@ -669,24 +683,36 @@ function tonightAdd(){
 async function run(file){
   if(S.busy) return; S.busy=true;
   if(file.size > 80*1048576){ dzLabel.textContent='⚠️ that file is huge — beta loves songs under ~80 MB'; S.busy=false; return; }
-  S.fileName=file.name;
+  S.fileName=file.name; S.skipWords=false;
   pack.style.display='none'; eng.style.display='block'; stageReset();
   dzLabel.textContent='🎤 '+file.name;
+  var skipBtn=$('kp-skip'); if(skipBtn) skipBtn.style.display='inline-block';
   try {
-    stage(1,'decoding your song…',5);
+    stage(1,'decoding your song…',2);
     S.buf = await decodeFile(file);
     var pcm16 = monoResample(S.buf, 16000);
-    // LISTEN
-    S.words = await listen(pcm16);
-    stageDone(1, S.words.length ? ('the words are in — '+S.words.length+' of them 🩷') : 'no words found — instrumental it is 🎵');
-    // HEAR
+
+    // LISTEN runs in the background — OKE doesn't wait for KARA 🩷💙
+    var listenP = (async function(){
+      try {
+        var w = await listen(pcm16);
+        if(!S.skipWords){
+          S.words = w;
+          stageDone(1, S.words.length ? ('the words are in — '+S.words.length+' of them 🩷') : 'no words found — instrumental it is 🎵');
+        } else { stageDone(1,'words skipped — chords & flames only ⏭'); }
+      } catch(e){ if(!S.skipWords){ S.words=[]; stageDone(1,'the words got away this time — chords only 🌺'); } }
+      var sb=$('kp-skip'); if(sb) sb.style.display='none';
+    })();
+
+    // HEAR (fast — right now)
     stage(2,'OKE is finding the chords…',30);
     var pcm22 = monoResample(S.buf, 22050);
-    await new Promise(function(r){ setTimeout(r,30); }); // let the UI paint
+    await new Promise(function(r){ setTimeout(r,30); });
     var h = hear(pcm22, 22050);
     S.chords=h.chords; S.key=h.key;
     stageDone(2, S.chords.length ? (S.chords.length+' chord changes · key of '+S.key+' 💙') : 'quiet harmony — no clear chords, still singable 🌺');
-    // MIX
+
+    // MIX (fast — right now)
     stage(3,'fading the vocals into the background…',40);
     var m = await mix(S.buf);
     stage(3,'pressing the record…',75);
@@ -694,6 +720,10 @@ async function run(file){
     if(S.instUrl) URL.revokeObjectURL(S.instUrl);
     S.instUrl = URL.createObjectURL(S.instBlob);
     stageDone(3, m.mono ? 'mono source — vocals stay, still singable 🌺' : 'instrumental ready — vocals faded 🎚️');
+
+    // KARA finishes her listen (or you skipped ahead ⏭)
+    await listenP;
+
     // WEAVE
     stage(4,'pinning chords to the words…',60);
     S.lines = weave(S.words, S.chords);
@@ -711,11 +741,13 @@ async function run(file){
     console.error('[kprot engine]', e);
     dzLabel.textContent='⚠️ hiccup: '+(e && e.message ? e.message : 'something broke')+' — try another file';
   }
+  var sb2=$('kp-skip'); if(sb2) sb2.style.display='none';
   S.busy=false;
 }
 
 /* ---------- wire it up ---------- */
 dz.onclick=function(){ if(!S.busy) fi.click(); };
+var ksk=$('kp-skip'); if(ksk) ksk.onclick=function(){ S.skipWords=true; S.words=[]; };
 fi.onchange=function(){ if(fi.files[0]) run(fi.files[0]); fi.value=''; };
 dz.ondragover=function(e){ e.preventDefault(); dz.style.borderColor='#c084fc'; dz.style.background='#ffffff0c'; };
 dz.ondragleave=function(){ dz.style.borderColor='#c084fc66'; dz.style.background='#ffffff06'; };
