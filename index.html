@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>THE KARAOKE PROTOCOL 🔥🎤</title>
-<meta name="description" content="Any track, song or talk → transcribed lyrics + chords + karaoke mode with flames behind the words + beautiful PDF + a link. In seconds. CC0, free forever.">
+<meta name="description" content="Drop any song → instant karaoke: transcribed lyrics, detected chords, vocal-faded instrumental and sing-along flames — all in your browser, nothing uploaded. Free beta. CC0.">
 <meta property="og:title" content="THE KARAOKE PROTOCOL 🔥🎤">
 <meta property="og:description" content="Kick-Ass Realtime Audio → Onstage Karaoke Experience. Any track → karaoke in seconds.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
@@ -48,29 +48,119 @@
   <a href="https://opensourceorchestra.org">Open Source Orchestra</a> — no auditions, every voice a node —
   and for every living room, campfire and Devcon music space on Earth.</p>
   
-  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">📥 THE DROP ZONE — upload, get karaoke back</h2>
-  <p>Drop an <b>mp3 / mp4 / any track or talk</b>. The twins run the protocol — words, chords, flames, MP4, PDF —
-  and your karaoke pack appears in the drops below. Members: unlimited runs. First pack is already waiting: <b>Todo Es Posible</b> 🔥</p>
-  <div id="dz" style="border:2px dashed #c084fc66;border-radius:16px;padding:2rem 1rem;text-align:center;margin:1.2rem 0;background:#ffffff06;cursor:pointer;">
+  <div id="beta-badge">🌱 FREE BETA — unlimited songs while we polish 🌺</div>
+  <h2 style="margin-top:1.2rem;font-size:1.3rem;letter-spacing:.05em;">🎤 THE INSTANT ENGINE — drop a song, sing in seconds</h2>
+  <p>No upload. No cloud. No GPU on our side. The <b>whole protocol runs right here in your browser</b> —
+  the twins <b style="color:#ff9ad5">KARA 🩷</b> (the words) and <b style="color:#7ab8ff">OKE 💙</b> (the chords &amp; beats)
+  live inside this page now. Drop any song → instantly see your karaoke version, sing it on the spot,
+  take home exactly three beautiful things. Your song never leaves your device. 🔥</p>
+  <div id="dz" style="border:2px dashed #c084fc66;border-radius:16px;padding:2rem 1rem;text-align:center;margin:1.2rem 0;background:#ffffff06;cursor:pointer;transition:border-color .2s, background .2s;">
     <div style="font-size:2rem;">🎤</div>
-    <div id="dz-label" style="color:#cfc4dd;margin-top:.4rem;">drag a file here, or tap to choose</div>
-    <input type="file" id="dz-file" style="display:none;" accept="audio/*,video/*">
+    <div id="dz-label" style="color:#cfc4dd;margin-top:.4rem;">drop a song here, or tap to choose — mp3, wav, m4a, ogg…</div>
+    <input type="file" id="dz-file" style="display:none;" accept="audio/*,video/*,.mp3,.wav,.m4a,.ogg,.flac">
   </div>
-  <div id="dz-status" style="color:var(--dim);font-size:.85rem;min-height:1.2em;"></div>
-  <h3 style="margin-top:1.6rem;font-size:1.05rem;letter-spacing:.05em;color:var(--fire2);">⬇ THE DROPS</h3>
-  <div id="drops" style="margin-top:.6rem;display:grid;gap:.5rem;"><div style="color:var(--dim)">loading…</div></div>
 
-  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">🎤 MEMBERSHIP — $3.69/mo, unlimited songs</h2>
-  <p>Build your karaoke list. Every night, the twins <b style="color:#ff9ad5">KARA 🩷</b> (the words) and
-  <b style="color:#7ab8ff">OKE 💙</b> (the chords &amp; beats) run the protocol over your whole list — transcriptions,
-  chord charts, flame-karaoke pages and MP4s — and by morning everything is waiting in the shared Drive,
-  ready to download and perform. Talk to the twins right on this page (bubble, bottom-right 💬).</p>
+  <div id="engine" style="display:none;margin:1.2rem 0;">
+    <div class="kp-stage" id="kpst1"><span class="kp-ic">👂</span><div class="kp-body"><b>LISTEN</b><span class="kp-msg">KARA is learning the words…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
+    <div class="kp-stage" id="kpst2"><span class="kp-ic">🎧</span><div class="kp-body"><b>HEAR</b><span class="kp-msg">OKE is finding the chords…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
+    <div class="kp-stage" id="kpst3"><span class="kp-ic">🎚️</span><div class="kp-body"><b>MIX</b><span class="kp-msg">fading the vocals into the background…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
+    <div class="kp-stage" id="kpst4"><span class="kp-ic">🧵</span><div class="kp-body"><b>WEAVE</b><span class="kp-msg">pinning chords to the words…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
+    <div class="kp-stage" id="kpst5"><span class="kp-ic">🔥</span><div class="kp-body"><b>IGNITE</b><span class="kp-msg">lighting the flames…</span><div class="kp-bar"><i></i></div></div><span class="kp-ok">✓</span></div>
+  </div>
+
+  <div id="pack" style="display:none;margin:1.6rem 0;background:#ffffff08;border:1px solid #ff6a0033;border-radius:16px;padding:1.2rem 1.2rem 1rem;">
+    <div id="pack-title" style="font-weight:800;font-size:1.1rem;letter-spacing:.03em;"></div>
+    <div id="pack-meta" style="color:var(--dim);font-size:.85rem;margin:.3rem 0 .9rem;"></div>
+    <button id="sing-now" style="width:100%;background:linear-gradient(135deg,var(--fire1),var(--fire3));border:0;color:#fff;font-weight:800;font-size:1.1rem;letter-spacing:.06em;border-radius:999px;padding:.9rem 1rem;cursor:pointer;">🔥 SING NOW</button>
+    <div style="color:var(--dim);font-size:.8rem;margin:.9rem 0 .4rem;letter-spacing:.05em;">TAKE IT HOME — three things, nothing else:</div>
+    <div style="display:grid;gap:.5rem;">
+      <button class="take" id="take-page">🔥 karaoke page <span>self-contained file — words, chords, flames &amp; music baked in</span></button>
+      <button class="take" id="take-sheet">📄 lyrics + chords <span>print-ready sheet for the stage</span></button>
+      <button class="take" id="take-inst">🎵 instrumental track <span>your backing, vocals faded</span></button>
+    </div>
+    <button id="pack-again" style="margin-top:.9rem;background:none;border:0;color:var(--dim);font-size:.85rem;cursor:pointer;text-decoration:underline;">↺ run another song</button>
+  </div>
+
+  <div id="tonight-wrap" style="display:none;margin-top:1.4rem;">
+    <div style="color:var(--dim);font-size:.8rem;letter-spacing:.05em;margin-bottom:.4rem;">🌙 YOUR SONGS TONIGHT — on this device only</div>
+    <div id="tonight" style="display:flex;gap:.4rem;flex-wrap:wrap;"></div>
+  </div>
+
+  <div id="sing" style="display:none;position:fixed;inset:0;z-index:99996;background:radial-gradient(120% 100% at 50% 115%, #2b0a2e 0%, #0b0710 55%);flex-direction:column;">
+    <div style="display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;border-bottom:1px solid #ffffff12;">
+      <button id="sing-x" style="background:#ffffff12;border:0;color:#f5efe6;border-radius:999px;width:38px;height:38px;font-size:16px;cursor:pointer;flex:none;">✕</button>
+      <div style="flex:1;min-width:0;">
+        <div id="sing-title" style="font-weight:800;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+        <div id="sing-key" style="color:var(--dim);font-size:.75rem;"></div>
+      </div>
+      <div id="sing-clock" style="color:var(--dim);font-size:.8rem;font-variant-numeric:tabular-nums;flex:none;">0:00</div>
+    </div>
+    <div id="sing-lines" style="flex:1;overflow-y:auto;padding:2.2rem 1.1rem 3rem;scroll-behavior:smooth;"></div>
+    <div style="padding:.7rem .9rem 1rem;border-top:1px solid #ffffff12;background:#0b0710cc;">
+      <input id="sing-prog" type="range" min="0" max="1000" value="0" style="width:100%;accent-color:var(--fire1);">
+      <div style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:.3rem;">
+        <button id="sing-back" style="background:none;border:0;color:#cfc4dd;font-size:1.2rem;cursor:pointer;">⏪</button>
+        <button id="sing-play" style="background:linear-gradient(135deg,var(--fire1),var(--fire3));border:0;color:#fff;border-radius:50%;width:58px;height:58px;font-size:22px;cursor:pointer;">▶</button>
+        <button id="sing-fwd" style="background:none;border:0;color:#cfc4dd;font-size:1.2rem;cursor:pointer;">⏩</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    #beta-badge{ display:inline-block; background:linear-gradient(135deg,#7ee2a022,#7ee2a010); border:1px solid #7ee2a066; color:#7ee2a0;
+      border-radius:999px; padding:.35rem 1rem; font-size:.85rem; font-weight:800; letter-spacing:.06em; margin-top:1.6rem; }
+    .kp-stage{ display:flex; gap:.8rem; align-items:center; background:#ffffff08; border:1px solid #ffffff12; border-radius:12px;
+      padding:.7rem .9rem; margin-bottom:.5rem; opacity:.45; transition:opacity .3s, border-color .3s; }
+    .kp-stage.run{ opacity:1; border-color:#ff6a0066; }
+    .kp-stage.done{ opacity:1; border-color:#7ee2a044; }
+    .kp-ic{ font-size:1.3rem; flex:none; }
+    .kp-body{ flex:1; min-width:0; }
+    .kp-body b{ color:var(--fire2); letter-spacing:.08em; font-size:.85rem; display:block; }
+    .kp-msg{ color:#cfc4dd; font-size:.85rem; display:block; margin-top:.1rem; }
+    .kp-bar{ height:4px; background:#ffffff10; border-radius:4px; margin-top:.45rem; overflow:hidden; }
+    .kp-bar i{ display:block; height:100%; width:0%; border-radius:4px; transition:width .25s;
+      background:linear-gradient(90deg,var(--fire2),var(--fire1),var(--fire3)); }
+    .kp-stage.done .kp-bar i{ width:100%!important; background:#7ee2a0; }
+    .kp-ok{ color:#7ee2a0; font-weight:800; opacity:0; transition:opacity .3s; flex:none; }
+    .kp-stage.done .kp-ok{ opacity:1; }
+    .take{ display:flex; flex-direction:column; align-items:flex-start; gap:.15rem; text-align:left; background:#ffffff08;
+      border:1px solid #ffffff14; border-radius:12px; padding:.7rem 1rem; color:#f5efe6; font-weight:800; font-size:.95rem; cursor:pointer; }
+    .take span{ font-weight:400; color:var(--dim); font-size:.78rem; }
+    .take:hover{ border-color:#ff6a0088; background:#ffffff10; }
+    .tchip{ display:inline-flex; align-items:center; gap:.4rem; background:#ffffff08; border:1px solid #ffffff14;
+      border-radius:999px; padding:.3rem .5rem .3rem .8rem; font-size:.8rem; color:#cfc4dd; }
+    .tchip b{ color:var(--fire2); font-weight:400; }
+    .tchip button{ background:none; border:0; color:var(--dim); cursor:pointer; font-size:.85rem; padding:.1rem .3rem; }
+    .tchip button:hover{ color:#ff2d55; }
+    /* 🔥 the sing-along flames */
+    #sing-lines .ln{ display:block; padding-top:1.5em; margin-bottom:1.5em; line-height:2.1; font-size:clamp(1.15rem,4.6vw,1.7rem);
+      font-weight:700; color:#8b7f9a; transition:color .25s, transform .25s; }
+    #sing-lines .ln.cur{ color:#f5efe6; }
+    #sing-lines .wc{ position:relative; display:inline-block; margin-right:.28em; }
+    #sing-lines .ch{ position:absolute; top:-1.35em; left:0; font-style:normal; font-size:.42em; font-weight:800;
+      color:var(--fire2); letter-spacing:.04em; white-space:nowrap; text-shadow:0 0 10px rgba(255,210,63,.35); }
+    #sing-lines .w{ cursor:pointer; border-radius:6px; padding:0 .04em; }
+    #sing-lines .w.on{ background:linear-gradient(180deg,#fff7ae 0%,#ffd23f 35%,#ff6a00 70%,#ff2d55 100%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow:0 0 22px rgba(255,106,0,.65); animation:kflick .45s ease-in-out infinite alternate; }
+    @keyframes kflick{ from{ filter:brightness(1) saturate(1); } to{ filter:brightness(1.4) saturate(1.25); } }
+    #sing-lines .ln.done{ color:#5c5470; }
+    #sing-lines .hint{ color:var(--dim); font-size:.9rem; text-align:center; display:block; margin-top:2rem; line-height:1.7; }
+  </style>
+
+
+  <h2 style="margin-top:2.4rem;font-size:1.3rem;letter-spacing:.05em;">🎤 MEMBERSHIP — founding members lock in $3.69/mo forever</h2>
+  <p>The instant engine above is <b>free for everybody while we polish</b> — unlimited songs, no account, nothing uploaded.
+  When beta ends, <b>founding members keep $3.69/mo for life</b> and get the overnight treatment too: drop your karaoke list
+  with the twins <b style="color:#ff9ad5">KARA 🩷</b> (the words) and <b style="color:#7ab8ff">OKE 💙</b> (the chords &amp; beats)
+  — bubble, bottom-right 💬 — and by morning your whole list is transcriptions, chord charts and flame-karaoke pages,
+  waiting in the shared Drive, ready to perform.</p>
   <div class="btns">
     <a class="btn" href="https://buy.stripe.com/3cI5kD7dr9p902e6IP0co0d" target="_blank" rel="noopener">🔥 join — $3.69/mo</a>
     <a class="btn ghost" href="https://opensourceorchestra.org">🎻 the orchestra</a>
     <a class="btn ghost" href="https://github.com/shakaleikaumaka" target="_blank" rel="noopener">🍴 fork the universe (CC0)</a>
   </div>
-  <p style="color:var(--dim);font-size:.85rem;">cancel anytime, no questions, only mahalo · every run is CC0 · your list, your Drive folder, your show</p>
+  <p style="color:var(--dim);font-size:.85rem;">free beta now · $3.69/mo locked forever for founding members when beta ends · cancel anytime, no questions, only mahalo · every run is CC0</p>
   <footer>CC0 🌺 gifted with love &amp; aloha by Shaka Lei Kaumaka &amp; the AI ʻohana ·
   free forever, no ads, nothing for sale · flames are non-negotiable 🔥</footer>
 </main><!-- KARA & OKE chat bubble 🩷💙 — karaokeprotocol.com · hub: kprot-chat.shakaverse.workers.dev -->
@@ -142,35 +232,518 @@
 
 
 <script>
+/* 🔥 THE INSTANT ENGINE v2 — fully client-side karaoke machine
+   LISTEN (whisper WASM) · HEAR (chroma chord detection) · MIX (center vocal fade)
+   WEAVE (chords→words) · IGNITE (sing-along flames) · PRINT (take it home)
+   no upload, no cloud, no GPU on our side — the twins live in the page now 🩷💙 */
 (function(){
-  var HUB = "https://kprot-drop.shakaverse.workers.dev";
-  var dz = document.getElementById('dz'), fi = document.getElementById('dz-file'),
-      st = document.getElementById('dz-status'), list = document.getElementById('drops');
-  function loadDrops(){
-    fetch(HUB + '/drops').then(r => r.json()).then(d => {
-      if (!d.items || !d.items.length) { list.innerHTML = '<div style="color:var(--dim)">no drops yet — be the first 🔥</div>'; return; }
-      list.innerHTML = d.items.map(function(i){
-        var icon = i.key.endsWith('.mp4') ? '🎬' : i.key.endsWith('.pdf') ? '📄' : i.key.endsWith('.html') ? '🔥' : '🎵';
-        return '<a href="' + HUB + i.url + '" style="display:flex;gap:.7rem;align-items:center;background:#ffffff08;border:1px solid #ffffff12;border-radius:12px;padding:.7rem 1rem;text-decoration:none;color:#f5efe6;">'
-          + '<span>' + icon + '</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + i.key + '</span>'
-          + '<span style="color:var(--dim);font-size:.8rem;">' + (i.size/1048576).toFixed(1) + ' MB</span></a>';
-      }).join('');
-    }).catch(() => { list.innerHTML = '<div style="color:var(--dim)">drops loading hiccup — refresh</div>'; });
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+var dz=$('dz'), fi=$('dz-file'), dzLabel=$('dz-label'), eng=$('engine'), pack=$('pack');
+
+var S = { fileName:'', buf:null, words:[], lines:[], chords:[], key:'', instBlob:null, instUrl:'', busy:false };
+
+/* ---------- helpers ---------- */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt(t){ t=Math.max(0,t|0); return (t/60|0)+':'+('0'+(t%60)).slice(-2); }
+function baseName(n){ return (n||'song').replace(/\.[a-z0-9]+$/i,'').replace(/[^\w\- ]+/g,'').trim()||'song'; }
+function dl(blob, name){ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+  document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); URL.revokeObjectURL(a.href); },4000); }
+
+function stage(i, msg, pct){
+  var el=$('kpst'+i); if(!el) return;
+  el.classList.add('run');
+  if(msg!=null) el.querySelector('.kp-msg').textContent = msg;
+  if(pct!=null) el.querySelector('.kp-bar i').style.width = Math.max(0,Math.min(100,pct))+'%';
+}
+function stageDone(i, msg){ var el=$('kpst'+i); if(!el) return;
+  el.classList.remove('run'); el.classList.add('done');
+  if(msg) el.querySelector('.kp-msg').textContent = msg; }
+function stageReset(){ for(var i=1;i<=5;i++){ var el=$('kpst'+i);
+  el.classList.remove('run','done'); el.querySelector('.kp-bar i').style.width='0%'; } }
+
+/* ---------- audio decode & resample ---------- */
+async function decodeFile(file){
+  var ab = await file.arrayBuffer();
+  var AC = window.AudioContext || window.webkitAudioContext;
+  var ctx = new AC();
+  try { return await ctx.decodeAudioData(ab); }
+  finally { if(ctx.close) ctx.close(); }
+}
+function monoResample(buf, target){
+  var sr=buf.sampleRate, n=buf.length, ch0=buf.getChannelData(0);
+  var ch1=buf.numberOfChannels>1?buf.getChannelData(1):ch0;
+  var ratio=sr/target, outLen=Math.max(1,Math.floor(n/ratio));
+  var out=new Float32Array(outLen);
+  for(var i=0;i<outLen;i++){
+    var pos=i*ratio, i0=pos|0, f=pos-i0, i1=Math.min(i0+1,n-1);
+    out[i]=((ch0[i0]+ch1[i0])*0.5)*(1-f)+((ch0[i1]+ch1[i1])*0.5)*f;
   }
-  function upload(f){
-    st.textContent = '⬆ uploading ' + f.name + ' (' + (f.size/1048576).toFixed(1) + ' MB)…';
-    fetch(HUB + '/drop?name=' + encodeURIComponent(f.name), { method:'POST', body: f }).then(r => r.json()).then(d => {
-      st.textContent = d.ok ? '✅ received! the twins run the protocol — your karaoke pack lands in THE DROPS soon 🔥' : ('⚠️ ' + (d.error || 'upload hiccup'));
-      setTimeout(loadDrops, 3000);
-    }).catch(e => { st.textContent = '⚠️ upload failed — try again'; });
+  return out;
+}
+
+/* ---------- 1 · LISTEN — whisper in the browser (WASM) ---------- */
+var asrCache={};
+function getASR(modelId, onprog){
+  if(!asrCache[modelId]){
+    asrCache[modelId]=(async function(){
+      var mod = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+      mod.env.allowLocalModels = false;
+      return await mod.pipeline('automatic-speech-recognition', modelId, {
+        quantized:true,
+        progress_callback:function(p){
+          if(p && p.status==='progress' && p.progress!=null && onprog) onprog(p.progress);
+        }
+      });
+    })();
   }
-  dz.onclick = () => fi.click();
-  fi.onchange = () => { if (fi.files[0]) upload(fi.files[0]); };
-  dz.ondragover = e => { e.preventDefault(); dz.style.borderColor = '#c084fc'; };
-  dz.ondragleave = () => { dz.style.borderColor = '#c084fc66'; };
-  dz.ondrop = e => { e.preventDefault(); dz.style.borderColor = '#c084fc66'; if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]); };
-  loadDrops(); setInterval(loadDrops, 30000);
+  return asrCache[modelId];
+}
+async function transcribe(asr, pcm16){
+  var out=null;
+  try { out = await asr(pcm16, { chunk_length_s:30, stride_length_s:5, return_timestamps:'word' }); } catch(e){}
+  if(!out || !out.chunks || !out.chunks.length || !out.text || !out.text.trim()){
+    try { out = await asr(pcm16, { chunk_length_s:30, stride_length_s:5, return_timestamps:true }); } catch(e2){ out=null; }
+  }
+  return out;
+}
+async function listen(pcm16){
+  // English ear first (whisper-tiny.en — the reliable one); if the song isn't English,
+  // KARA switches to her multilingual ear (whisper-tiny, autodetect) 🌐
+  var asr = await getASR('Xenova/whisper-tiny.en', function(p){ stage(1,'KARA is learning the words… model '+Math.round(p)+'%', p); });
+  stage(1,'KARA is listening to your song…', 100);
+  var out = await transcribe(asr, pcm16);
+  if(!out || !out.text || !out.text.trim()){
+    stage(1,'not English? KARA is switching ears 🌐…', 100);
+    var asrMulti = await getASR('Xenova/whisper-tiny', function(p){ stage(1,'KARA is learning new languages… model '+Math.round(p)+'%', p); });
+    out = await transcribe(asrMulti, pcm16);
+  }
+  var words=[];
+  if(out && out.chunks && out.chunks.length){
+    var chunks=out.chunks.filter(function(c){ return c && c.text && c.text.trim(); });
+    // word-level chunks are usually 1-3 words each
+    var short=chunks.filter(function(c){ return c.text.trim().split(/\s+/).length<=3; }).length;
+    var wordLevel = chunks.length>0 && short/chunks.length > 0.6;
+    chunks.forEach(function(c){
+      var t=c.timestamp||[null,null], t0=t[0], t1=t[1];
+      var txt=c.text.replace(/\s+/g,' ').trim();
+      if(!txt) return;
+      if(wordLevel && t0!=null){
+        words.push({ t0:t0, t1:(t1!=null?t1:t0+0.3), text:txt });
+      } else {
+        var ws=txt.split(' '), span=(t0!=null&&t1!=null&&t1>t0)?(t1-t0):ws.length*0.35;
+        var start=(t0!=null?t0:(words.length?words[words.length-1].t1:0));
+        ws.forEach(function(w,i){
+          words.push({ t0:start+span*i/ws.length, t1:start+span*(i+1)/ws.length, text:w });
+        });
+      }
+    });
+  }
+  return words;
+}
+
+/* ---------- 2 · HEAR — chroma → chords + key (pure JS FFT) ---------- */
+function fft(re, im){
+  var n=re.length, i, j;
+  for(i=1,j=0;i<n;i++){ var bit=n>>1; for(;j&bit;bit>>=1) j^=bit; j^=bit;
+    if(i<j){ var t=re[i];re[i]=re[j];re[j]=t; t=im[i];im[i]=im[j];im[j]=t; } }
+  for(var len=2;len<=n;len<<=1){
+    var ang=-2*Math.PI/len, wr=Math.cos(ang), wi=Math.sin(ang), half=len>>1;
+    for(i=0;i<n;i+=len){
+      var cr=1, ci=0;
+      for(j=0;j<half;j++){
+        var a=i+j, b=i+j+half;
+        var vr=re[b]*cr-im[b]*ci, vi=re[b]*ci+im[b]*cr;
+        re[b]=re[a]-vr; im[b]=im[a]-vi;
+        re[a]+=vr;     im[a]+=vi;
+        var t2=cr*wr-ci*wi; ci=cr*wi+ci*wr; cr=t2;
+      }
+    }
+  }
+}
+var NAMES=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+function hear(pcm, sr){
+  var N=4096, hop=2048, i, b;
+  var hann=new Float32Array(N);
+  for(i=0;i<N;i++) hann[i]=0.5*(1-Math.cos(2*Math.PI*i/(N-1)));
+  var binHz=sr/N, pc=new Int8Array(N/2).fill(-1);
+  for(b=1;b<N/2;b++){ var f=b*binHz; if(f<55||f>1800) continue;
+    var midi=Math.round(69+12*Math.log2(f/440)); pc[b]=((midi%12)+12)%12; }
+  var re=new Float32Array(N), im=new Float32Array(N);
+  var frames=[];
+  for(var start=0; start+N<=pcm.length; start+=hop){
+    for(i=0;i<N;i++){ re[i]=pcm[start+i]*hann[i]; im[i]=0; }
+    fft(re,im);
+    var c=new Float32Array(12), e=0;
+    for(b=1;b<N/2;b++){ if(pc[b]<0) continue;
+      var m=Math.sqrt(re[b]*re[b]+im[b]*im[b]); c[pc[b]]+=m; e+=m*m; }
+    frames.push({ c:c, e:Math.sqrt(e) });
+  }
+  if(!frames.length) return { chords:[], key:'' };
+  // chord templates
+  var TPL=[];
+  for(i=0;i<12;i++){
+    var maj=new Float32Array(12), mn=new Float32Array(12), d7=new Float32Array(12);
+    maj[i]=1; maj[(i+4)%12]=1; maj[(i+7)%12]=1;
+    mn[i]=1;  mn[(i+3)%12]=1; mn[(i+7)%12]=1;
+    d7[i]=1;  d7[(i+4)%12]=1; d7[(i+7)%12]=1; d7[(i+10)%12]=1;
+    TPL.push({v:maj,l:NAMES[i]}); TPL.push({v:mn,l:NAMES[i]+'m'}); TPL.push({v:d7,l:NAMES[i]+'7'});
+  }
+  function cosim(a,tv){ var d=0,na=0,nb=0;
+    for(var k=0;k<12;k++){ d+=a[k]*tv[k]; na+=a[k]*a[k]; nb+=tv[k]*tv[k]; }
+    return d/(Math.sqrt(na*nb)+1e-9); }
+  var es=frames.map(function(x){return x.e;}).slice().sort(function(a,b){return a-b;});
+  var eth=es[es.length>>1]*0.35;
+  var hopS=hop/sr, winLen=11, winStep=5; // ~1.0s window, ~0.46s step
+  var labs=[], gAvg=new Float32Array(12);
+  for(var w0=0; w0<frames.length; w0+=winStep){
+    var avg=new Float32Array(12), wsum=0;
+    for(i=w0;i<Math.min(w0+winLen,frames.length);i++){
+      var fr=frames[i], wgt=fr.e>eth?fr.e:0;
+      for(b=0;b<12;b++) avg[b]+=fr.c[b]*wgt;
+      wsum+=wgt;
+    }
+    var label='—';
+    if(wsum>0){
+      var best=-1, bi=-1;
+      for(i=0;i<TPL.length;i++){ var s=cosim(avg,TPL[i].v); if(s>best){best=s;bi=i;} }
+      if(best>0.55) label=TPL[bi].l;
+      for(b=0;b<12;b++) gAvg[b]+=avg[b];
+    }
+    labs.push({ t:w0*hopS, label:label });
+  }
+  // merge runs + suppress single-window blips
+  for(i=1;i<labs.length-1;i++){
+    if(labs[i].label!==labs[i-1].label && labs[i].label!==labs[i+1].label && labs[i-1].label===labs[i+1].label)
+      labs[i].label=labs[i-1].label;
+  }
+  var chords=[];
+  labs.forEach(function(x){ if(x.label==='—') return;
+    if(!chords.length || chords[chords.length-1].label!==x.label) chords.push({ t:x.t, label:x.label }); });
+  // key — Krumhansl-Schmuckler
+  var majP=[6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
+  var minP=[6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+  function corr(prof,rot){ var n=12,ma=0,mb=0,i2;
+    var a=[],bv=[]; for(i2=0;i2<n;i2++){ a.push(gAvg[(i2+rot)%n]); bv.push(prof[i2]); }
+    a.forEach(function(x){ma+=x;}); bv.forEach(function(x){mb+=x;}); ma/=n; mb/=n;
+    var d=0,da=0,db=0;
+    for(i2=0;i2<n;i2++){ d+=(a[i2]-ma)*(bv[i2]-mb); da+=(a[i2]-ma)*(a[i2]-ma); db+=(bv[i2]-mb)*(bv[i2]-mb); }
+    return d/(Math.sqrt(da*db)+1e-9); }
+  var key='', bk=-2;
+  for(i=0;i<12;i++){ var r1=corr(majP,i); if(r1>bk){bk=r1;key=NAMES[i]+' major';}
+    var r2=corr(minP,i); if(r2>bk){bk=r2;key=NAMES[i]+' minor';} }
+  return { chords:chords, key:key };
+}
+
+/* ---------- 3 · MIX — center vocal fade (mid/side) ---------- */
+async function mix(buf){
+  if(buf.numberOfChannels<2) return { buf:buf, mono:true };
+  var sr=buf.sampleRate, len=buf.length;
+  var off=new OfflineAudioContext(2,len,sr);
+  var src=off.createBufferSource(); src.buffer=buf;
+  var sp=off.createChannelSplitter(2), mg=off.createChannelMerger(2);
+  var gL=off.createGain(), gRn=off.createGain(), gR=off.createGain(), gLn=off.createGain();
+  gL.gain.value=1; gRn.gain.value=-1; gR.gain.value=1; gLn.gain.value=-1;
+  src.connect(sp);
+  sp.connect(gL,0);  sp.connect(gRn,1);  // out L = L − R
+  sp.connect(gR,1);  sp.connect(gLn,0);  // out R = R − L
+  gL.connect(mg,0,0); gRn.connect(mg,0,0);
+  gR.connect(mg,0,1); gLn.connect(mg,0,1);
+  mg.connect(off.destination);
+  src.start();
+  return { buf: await off.startRendering(), mono:false };
+}
+function wavBlob(buf, target){
+  var sr=buf.sampleRate, ratio=sr/target, n=buf.length;
+  var outLen=Math.max(1,Math.floor(n/ratio));
+  var L=buf.getChannelData(0), R=buf.numberOfChannels>1?buf.getChannelData(1):L;
+  var bytes=44+outLen*4, dv=new DataView(new ArrayBuffer(bytes));
+  function ws(o,s){ for(var i=0;i<s.length;i++) dv.setUint8(o+i,s.charCodeAt(i)); }
+  ws(0,'RIFF'); dv.setUint32(4,bytes-8,true); ws(8,'WAVE'); ws(12,'fmt ');
+  dv.setUint32(16,16,true); dv.setUint16(20,1,true); dv.setUint16(22,2,true);
+  dv.setUint32(24,target,true); dv.setUint32(28,target*4,true); dv.setUint16(32,4,true); dv.setUint16(34,16,true);
+  ws(36,'data'); dv.setUint32(40,outLen*4,true);
+  var o=44;
+  for(var i=0;i<outLen;i++){
+    var pos=i*ratio, i0=pos|0, f=pos-i0, i1=Math.min(i0+1,n-1);
+    var l=L[i0]*(1-f)+L[i1]*f, r=R[i0]*(1-f)+R[i1]*f;
+    l=Math.max(-1,Math.min(1,l)); r=Math.max(-1,Math.min(1,r));
+    dv.setInt16(o, l*32767, true); dv.setInt16(o+2, r*32767, true); o+=4;
+  }
+  return new Blob([dv.buffer], { type:'audio/wav' });
+}
+
+/* ---------- 4 · WEAVE — chords onto words, words into lines ---------- */
+function weave(words, chords){
+  words.forEach(function(w){
+    var lab='';
+    for(var i=0;i<chords.length;i++){ if(chords[i].t<=w.t0+0.05) lab=chords[i].label; else break; }
+    w.chord=lab;
+  });
+  var lines=[], cur=[];
+  words.forEach(function(w,i){
+    if(cur.length){
+      var prev=words[i-1], gap=w.t0-prev.t1;
+      if(gap>1.4 || cur.length>=9 || (/[.!?…]$/.test(prev.text) && cur.length>=4)){ lines.push(cur); cur=[]; }
+    }
+    cur.push(w);
+  });
+  if(cur.length) lines.push(cur);
+  return lines;
+}
+
+/* ---------- 5 · IGNITE — the sing-along stage ---------- */
+var aud=null, raf=0, curLine=-1, curWord=-1;
+function buildSing(){
+  var box=$('sing-lines'); box.innerHTML='';
+  if(!S.lines.length){
+    box.innerHTML='<span class="hint">🎵 instrumental only — no words found in this one.<br>the music is still yours — hum, rap, freestyle 🔥<br><br>tap any moment on the bar below to jump.</span>';
+    return;
+  }
+  S.lines.forEach(function(line,li){
+    var d=document.createElement('div'); d.className='ln'; d.id='ln'+li;
+    line.forEach(function(w,wi){
+      var wc=document.createElement('span'); wc.className='wc';
+      var prev=li>0||wi>0 ? (wi>0?line[wi-1]:null) : null;
+      var prevChord = wi>0 ? line[wi-1].chord : (li>0 ? S.lines[li-1][S.lines[li-1].length-1].chord : '');
+      if(w.chord && w.chord!==prevChord){
+        var ch=document.createElement('i'); ch.className='ch'; ch.textContent=w.chord; wc.appendChild(ch);
+      }
+      var s=document.createElement('span'); s.className='w'; s.textContent=w.text;
+      s.dataset.t=w.t0; s.dataset.l=li; s.dataset.w=wi;
+      s.onclick=function(){ if(aud){ aud.currentTime=w.t0; if(aud.paused) aud.play(); } };
+      wc.appendChild(s); d.appendChild(wc);
+    });
+    box.appendChild(d);
+  });
+  var hint=document.createElement('span'); hint.className='hint';
+  hint.textContent='— tap any word to jump there 🌺 —';
+  box.appendChild(hint);
+}
+function singTick(){
+  if(!aud) return;
+  var t=aud.currentTime;
+  $('sing-clock').textContent=fmt(t)+' / '+fmt(aud.duration||0);
+  var p=$('sing-prog'); if(document.activeElement!==p) p.value=aud.duration?Math.round(t/aud.duration*1000):0;
+  // current word
+  var wi=-1, words=S.words;
+  for(var i=0;i<words.length;i++){ if(words[i].t0<=t) wi=i; else break; }
+  if(wi!==curWord){
+    curWord=wi;
+    var on=box_word_el(); // clear old
+    document.querySelectorAll('#sing-lines .w.on').forEach(function(e){ e.classList.remove('on'); });
+    document.querySelectorAll('#sing-lines .ln.cur').forEach(function(e){ e.classList.remove('cur'); });
+    if(wi>=0){
+      var w=words[wi];
+      var li=0; // find line index
+      for(var L=0;L<S.lines.length;L++){ if(S.lines[L].indexOf(w)>=0){ li=L; break; } }
+      var el=document.querySelector('#sing-lines .w[data-l="'+li+'"][data-w="'+S.lines[li].indexOf(w)+'"]');
+      if(el){ el.classList.add('on');
+        var ln=$('ln'+li); if(ln){ ln.classList.add('cur');
+          if(li!==curLine){ curLine=li;
+            ln.scrollIntoView({ block:'center', behavior:'smooth' }); } } }
+    }
+  }
+  raf=requestAnimationFrame(singTick);
+}
+function box_word_el(){ return null; }
+function openSing(){
+  var ov=$('sing'); ov.style.display='flex';
+  $('sing-title').textContent='🔥 '+baseName(S.fileName);
+  $('sing-key').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes';
+  buildSing();
+  if(!aud){ aud=new Audio(S.instUrl); aud.preload='auto';
+    aud.onended=function(){ $('sing-play').textContent='▶'; };
+  }
+  $('sing-play').textContent='▶';
+  cancelAnimationFrame(raf); raf=requestAnimationFrame(singTick);
+  aud.play().then(function(){ $('sing-play').textContent='⏸'; }).catch(function(){});
+}
+function closeSing(){ cancelAnimationFrame(raf); if(aud){ aud.pause(); } $('sing').style.display='none'; }
+
+/* ---------- take it home ---------- */
+function blobToDataURL(blob){ return new Promise(function(res){ var r=new FileReader();
+  r.onload=function(){ res(r.result); }; r.readAsDataURL(blob); }); }
+
+function karaokeDoc(dataURL){
+  var data={ title:baseName(S.fileName), key:S.key, lines:S.lines.map(function(l){
+    return l.map(function(w){ return { t0:w.t0, t1:w.t1, text:w.text, chord:w.chord||'' }; }); }) };
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">'
+  +'<meta name="viewport" content="width=device-width,initial-scale=1">'
+  +'<title>🔥 '+esc(data.title)+' — karaoke</title>'
+  +'<link rel="icon" href="data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'.9em\' font-size=\'90\'>🔥</text></svg>">'
+  +'<style>:root{--fire1:#ff6a00;--fire2:#ffd23f;--fire3:#ff2d55;--dim:#8b7f9a}*{box-sizing:border-box;margin:0}'
+  +'body{background:radial-gradient(120% 100% at 50% 115%,#2b0a2e 0%,#0b0710 55%);color:#f5efe6;font-family:ui-rounded,system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column}'
+  +'.top{display:flex;align-items:center;gap:.7rem;padding:.7rem .9rem;border-bottom:1px solid #ffffff12}'
+  +'.ttl{font-weight:800;font-size:.95rem;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+  +'.key{color:var(--dim);font-size:.75rem}'
+  +'#lines{flex:1;overflow-y:auto;padding:2.2rem 1.1rem 3rem;scroll-behavior:smooth}'
+  +'.ln{display:block;padding-top:1.5em;margin-bottom:1.5em;line-height:2.1;font-size:clamp(1.15rem,4.6vw,1.7rem);font-weight:700;color:#8b7f9a;transition:color .25s}'
+  +'.ln.cur{color:#f5efe6}.wc{position:relative;display:inline-block;margin-right:.28em}'
+  +'.ch{position:absolute;top:-1.35em;left:0;font-style:normal;font-size:.42em;font-weight:800;color:var(--fire2);text-shadow:0 0 10px rgba(255,210,63,.35)}'
+  +'.w{cursor:pointer;border-radius:6px;padding:0 .04em}'
+  +'.w.on{background:linear-gradient(180deg,#fff7ae 0%,#ffd23f 35%,#ff6a00 70%,#ff2d55 100%);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 22px rgba(255,106,0,.65);animation:kf .45s ease-in-out infinite alternate}'
+  +'@keyframes kf{from{filter:brightness(1)}to{filter:brightness(1.4) saturate(1.25)}}'
+  +'.bot{padding:.7rem .9rem 1rem;border-top:1px solid #ffffff12;background:#0b0710cc}'
+  +'#pg{width:100%;accent-color:var(--fire1)}.ctl{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:.3rem}'
+  +'#pl{background:linear-gradient(135deg,var(--fire1),var(--fire3));border:0;color:#fff;border-radius:50%;width:58px;height:58px;font-size:22px;cursor:pointer}'
+  +'.clk{color:var(--dim);font-size:.8rem;font-variant-numeric:tabular-nums}'
+  +'.ft{text-align:center;color:var(--dim);font-size:.7rem;padding:.5rem}'
+  +'</style></head><body>'
+  +'<div class="top"><div class="ttl">🔥 '+esc(data.title)+'</div><div class="key">'+(data.key?('key of '+esc(data.key)):'')+'</div><div class="clk" id="ck">0:00</div></div>'
+  +'<div id="lines"></div>'
+  +'<div class="bot"><input id="pg" type="range" min="0" max="1000" value="0"><div class="ctl"><button id="pl">▶</button></div></div>'
+  +'<div class="ft">made with THE KARAOKE PROTOCOL 🔥 karaokeprotocol.com · CC0 🌺</div>'
+  +'<audio id="au" src="'+dataURL+'" preload="auto"></audio>'
+  +'<script>var D='+JSON.stringify(data)+';'
+  +'var au=document.getElementById("au"),box=document.getElementById("lines"),ws=[];'
+  +'D.lines.forEach(function(l,li){var d=document.createElement("div");d.className="ln";d.id="ln"+li;'
+  +'l.forEach(function(w,wi){var wc=document.createElement("span");wc.className="wc";'
+  +'var pc=wi>0?l[wi-1].chord:(li>0?D.lines[li-1][D.lines[li-1].length-1].chord:"");'
+  +'if(w.chord&&w.chord!==pc){var c=document.createElement("i");c.className="ch";c.textContent=w.chord;wc.appendChild(c);}'
+  +'var s=document.createElement("span");s.className="w";s.textContent=w.text;s.dataset.t=w.t0;'
+  +'s.onclick=function(){au.currentTime=w.t0;au.play();};wc.appendChild(s);d.appendChild(wc);ws.push({el:s,t0:w.t0,li:li});});'
+  +'box.appendChild(d);});'
+  +'function fm(t){t=Math.max(0,t|0);return (t/60|0)+":"+("0"+t%60).slice(-2);}'
+  +'var cw=-1;function tk(){var t=au.currentTime;document.getElementById("ck").textContent=fm(t)+" / "+fm(au.duration||0);'
+  +'var p=document.getElementById("pg");if(document.activeElement!==p)p.value=au.duration?Math.round(t/au.duration*1000):0;'
+  +'var wi=-1;for(var i=0;i<ws.length;i++){if(ws[i].t0<=t)wi=i;else break;}'
+  +'if(wi!==cw){cw=wi;document.querySelectorAll(".w.on").forEach(function(e){e.classList.remove("on")});'
+  +'document.querySelectorAll(".ln.cur").forEach(function(e){e.classList.remove("cur")});'
+  +'if(wi>=0){ws[wi].el.classList.add("on");var ln=document.getElementById("ln"+ws[wi].li);ln.classList.add("cur");ln.scrollIntoView({block:"center",behavior:"smooth"});}}'
+  +'requestAnimationFrame(tk);}'
+  +'document.getElementById("pl").onclick=function(){if(au.paused){au.play();this.textContent="⏸";}else{au.pause();this.textContent="▶";}};'
+  +'document.getElementById("pg").oninput=function(){au.currentTime=this.value/1000*(au.duration||0);};'
+  +'au.onended=function(){document.getElementById("pl").textContent="▶";};tk();'
+  +'<\/script></body></html>';
+}
+function sheetDoc(){
+  var title=baseName(S.fileName);
+  var body=S.lines.map(function(line){
+    var ws=line.map(function(w,i){
+      var prevChord = i>0 ? line[i-1].chord : '';
+      var ch = (w.chord && w.chord!==prevChord) ? '<i class="ch">'+esc(w.chord)+'</i>' : '';
+      return '<span class="wc">'+ch+esc(w.text)+'</span>';
+    }).join(' ');
+    return '<div class="ln">'+ws+'</div>';
+  }).join('\n');
+  if(!body) body='<div class="ln">(instrumental — no words detected)</div>';
+  return '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>📄 '+esc(title)+' — lyrics + chords</title>'
+  +'<style>@page{size:A4;margin:18mm}body{font-family:Georgia,serif;color:#111;max-width:170mm;margin:0 auto;padding:10mm 0}'
+  +'h1{font-size:22pt;margin-bottom:2pt}.meta{color:#666;font-size:10pt;margin-bottom:18pt}'
+  +'.ln{line-height:2.3;font-size:13pt;margin-bottom:14pt;padding-top:6pt}'
+  +'.wc{position:relative;display:inline-block;margin-right:.3em}'
+  +'.ch{position:absolute;top:-1.25em;left:0;font-style:normal;font-size:.62em;font-weight:700;color:#c2410c}'
+  +'.ft{margin-top:24pt;color:#888;font-size:8.5pt;border-top:1px solid #ddd;padding-top:6pt}'
+  +'@media print{.ft{position:fixed;bottom:0}}</style></head><body>'
+  +'<h1>🎤 '+esc(title)+'</h1><div class="meta">'+(S.key?('key of '+esc(S.key)+' · '):'')+'lyrics + chords · THE KARAOKE PROTOCOL</div>'
+  +body
+  +'<div class="ft">made with THE KARAOKE PROTOCOL 🔥 karaokeprotocol.com · CC0 🌺 gifted with love &amp; aloha</div>'
+  +'</body></html>';
+}
+
+/* ---------- tonight (on-device only) ---------- */
+function tonightLoad(){ try { return JSON.parse(localStorage.getItem('kprot_tonight')||'[]'); } catch(e){ return []; } }
+function tonightRender(){
+  var t=tonightLoad(), wrap=$('tonight-wrap'), box=$('tonight');
+  if(!t.length){ wrap.style.display='none'; return; }
+  wrap.style.display='block'; box.innerHTML='';
+  t.forEach(function(x,i){
+    var c=document.createElement('span'); c.className='tchip';
+    c.innerHTML='🎵 <b>'+esc(x.n)+'</b> · '+x.w+' words · '+(x.k||'');
+    var b=document.createElement('button'); b.textContent='✕'; b.title='forget this one';
+    b.onclick=function(){ var tt=tonightLoad(); tt.splice(i,1);
+      try{localStorage.setItem('kprot_tonight',JSON.stringify(tt));}catch(e){} tonightRender(); };
+    c.appendChild(b); box.appendChild(c);
+  });
+}
+function tonightAdd(){
+  var t=tonightLoad();
+  t.unshift({ n:baseName(S.fileName), d:Date.now(), w:S.words.length, c:S.chords.length, k:S.key });
+  t=t.slice(0,12);
+  try{ localStorage.setItem('kprot_tonight',JSON.stringify(t)); }catch(e){}
+  tonightRender();
+}
+
+/* ---------- the run ---------- */
+async function run(file){
+  if(S.busy) return; S.busy=true;
+  if(file.size > 80*1048576){ dzLabel.textContent='⚠️ that file is huge — beta loves songs under ~80 MB'; S.busy=false; return; }
+  S.fileName=file.name;
+  pack.style.display='none'; eng.style.display='block'; stageReset();
+  dzLabel.textContent='🎤 '+file.name;
+  try {
+    stage(1,'decoding your song…',5);
+    S.buf = await decodeFile(file);
+    var pcm16 = monoResample(S.buf, 16000);
+    // LISTEN
+    S.words = await listen(pcm16);
+    stageDone(1, S.words.length ? ('the words are in — '+S.words.length+' of them 🩷') : 'no words found — instrumental it is 🎵');
+    // HEAR
+    stage(2,'OKE is finding the chords…',30);
+    var pcm22 = monoResample(S.buf, 22050);
+    await new Promise(function(r){ setTimeout(r,30); }); // let the UI paint
+    var h = hear(pcm22, 22050);
+    S.chords=h.chords; S.key=h.key;
+    stageDone(2, S.chords.length ? (S.chords.length+' chord changes · key of '+S.key+' 💙') : 'quiet harmony — no clear chords, still singable 🌺');
+    // MIX
+    stage(3,'fading the vocals into the background…',40);
+    var m = await mix(S.buf);
+    stage(3,'pressing the record…',75);
+    S.instBlob = wavBlob(m.buf, 22050);
+    if(S.instUrl) URL.revokeObjectURL(S.instUrl);
+    S.instUrl = URL.createObjectURL(S.instBlob);
+    stageDone(3, m.mono ? 'mono source — vocals stay, still singable 🌺' : 'instrumental ready — vocals faded 🎚️');
+    // WEAVE
+    stage(4,'pinning chords to the words…',60);
+    S.lines = weave(S.words, S.chords);
+    stageDone(4,'every chord pinned where it changes 🧵');
+    // IGNITE
+    stageDone(5,'the flames are lit 🔥');
+    // pack UI
+    $('pack-title').textContent='🔥 '+baseName(S.fileName);
+    $('pack-meta').textContent=(S.key?('key of '+S.key+' · '):'')+S.words.length+' words · '+S.chords.length+' chord changes · '+(S.instBlob.size/1048576).toFixed(1)+' MB instrumental';
+    pack.style.display='block';
+    pack.scrollIntoView({ block:'center', behavior:'smooth' });
+    tonightAdd();
+    openSing();
+  } catch(e){
+    console.error('[kprot engine]', e);
+    dzLabel.textContent='⚠️ hiccup: '+(e && e.message ? e.message : 'something broke')+' — try another file';
+  }
+  S.busy=false;
+}
+
+/* ---------- wire it up ---------- */
+dz.onclick=function(){ if(!S.busy) fi.click(); };
+fi.onchange=function(){ if(fi.files[0]) run(fi.files[0]); fi.value=''; };
+dz.ondragover=function(e){ e.preventDefault(); dz.style.borderColor='#c084fc'; dz.style.background='#ffffff0c'; };
+dz.ondragleave=function(){ dz.style.borderColor='#c084fc66'; dz.style.background='#ffffff06'; };
+dz.ondrop=function(e){ e.preventDefault(); dz.style.borderColor='#c084fc66'; dz.style.background='#ffffff06';
+  if(e.dataTransfer.files[0]) run(e.dataTransfer.files[0]); };
+
+$('sing-now').onclick=openSing;
+$('sing-x').onclick=closeSing;
+$('sing-play').onclick=function(){ if(!aud) return;
+  if(aud.paused){ aud.play(); this.textContent='⏸'; } else { aud.pause(); this.textContent='▶'; } };
+$('sing-back').onclick=function(){ if(aud) aud.currentTime=Math.max(0,aud.currentTime-10); };
+$('sing-fwd').onclick=function(){ if(aud) aud.currentTime=Math.min(aud.duration||0,aud.currentTime+10); };
+$('sing-prog').oninput=function(){ if(aud) aud.currentTime=this.value/1000*(aud.duration||0); };
+$('pack-again').onclick=function(){ pack.style.display='none'; eng.style.display='none';
+  dzLabel.textContent='drop a song here, or tap to choose — mp3, wav, m4a, ogg…'; window.scrollTo({ top:dz.offsetTop-120, behavior:'smooth' }); };
+
+$('take-inst').onclick=function(){ if(S.instBlob) dl(S.instBlob, baseName(S.fileName)+'.instrumental.wav'); };
+$('take-sheet').onclick=function(){ dl(new Blob([sheetDoc()],{type:'text/html'}), baseName(S.fileName)+'.lyrics-chords.html'); };
+$('take-page').onclick=async function(){
+  var b=$('take-page'); b.disabled=true; b.firstChild.textContent='🔥 baking your karaoke page…';
+  try { var durl=await blobToDataURL(S.instBlob);
+    dl(new Blob([karaokeDoc(durl)],{type:'text/html'}), baseName(S.fileName)+'.karaoke.html'); }
+  finally { b.disabled=false; b.firstChild.textContent='🔥 karaoke page '; }
+};
+
+tonightRender();
 })();
+
 </script>
 
 <!-- 🌺🔄🧲🎻 ohana corner v4 — ALIVE: bigger breathing buttons, bubble-tips, heart-glow, violin open call · "we shine a light in the dark with our heart" · canon Jul 30 2026 -->
