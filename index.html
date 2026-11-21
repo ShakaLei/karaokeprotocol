@@ -203,7 +203,7 @@
   var sess = localStorage.getItem('kprot_session');
   if (!sess) { sess = 'k' + Math.random().toString(36).slice(2,10); localStorage.setItem('kprot_session', sess); }
   var name = localStorage.getItem('kprot_name') || 'guest';
-  var last = 0, open = false, polling = false;
+  var last = 0, open = false;
   function add(role, who, text){
     var d = document.createElement('div');
     var mine = role === 'visitor';
@@ -223,31 +223,49 @@
      Skip exactly one hub echo per line typed on this page (history from earlier visits still renders). */
   var echoed = [];
   function isEcho(m){ if (m.role !== 'visitor') return false; var i = echoed.indexOf(String(m.text || '').trim()); if (i < 0) return false; echoed.splice(i, 1); return true; }
-  var pollCtl = null, lastBeat = Date.now();
-  /* long-poll law 2026-11-15: every hub reads `wait`, never `timeout` — `&timeout=20` made this widget short-poll
-     ~3×/s while open. A real 25 s long-poll answers just as fast (the hub wakes it on reply) at 1/80 of the load. */
+  var pollCtl = null, lastBeat = Date.now(), gen = 0, backoff = 300, fast = false, awaiting = 0, thinkEl = null, thinkTick = 0;
+  /* long-poll law 2026-11-15: every hub reads `wait`, never `timeout`. A real 25 s long-poll answers as fast as the hub wakes it. */
+  /* 🫧 living-wait law 2026-11-22 (Shaka: "had to refresh to see the response… faster, more creative and loving"): while a line of
+     yours waits for the desk (hub `pending`/`typing`, or our own send until a real reply renders) the panel shows a pulsing,
+     honest "thinking…" line that grows with the wait; it leaves the moment the real answer lands. */
+  try { var _ws = document.createElement('style'); _ws.textContent = '@keyframes ohWaitPulse{0%,100%{opacity:.5}50%{opacity:1}}'; document.head.appendChild(_ws); } catch(e) {}
+  function waitText(){ var s = (Date.now() - awaiting) / 1000; if (s < 20) return 'the desk is thinking…'; if (s < 300) return 'the desk is waking up on Taurus — your line is saved; the answer lands right here (usually a minute or two)'; return 'still waking — keep this page open or come back later; the answer will still land right here'; }
+  function think(on){
+    if (!on) { awaiting = 0; if (thinkTick) { clearInterval(thinkTick); thinkTick = 0; } if (thinkEl && thinkEl.parentNode) thinkEl.parentNode.removeChild(thinkEl); thinkEl = null; return; }
+    if (!awaiting) awaiting = Date.now();
+    if (!thinkEl) { thinkEl = document.createElement('div'); thinkEl.setAttribute('data-think', '1'); thinkEl.setAttribute('aria-live', 'polite'); thinkEl.style.cssText = 'align-self:flex-start;max-width:85%;padding:6px 11px;border-radius:12px;font-size:12.5px;line-height:1.4;color:#ffe4b8;border:1px dashed #ffd23f66;animation:ohWaitPulse 1.6s ease-in-out infinite;'; thinkTick = setInterval(function(){ if (thinkEl) thinkEl.textContent = waitText(); }, 1000); }
+    thinkEl.textContent = waitText(); log.appendChild(thinkEl); log.scrollTop = log.scrollHeight;
+  }
+  /* 🔁 generation law 2026-11-22 (Shaka: "had to refresh to see the response"): the old loop latched on one `polling` boolean — a backgrounded
+     phone can leave the in-flight fetch unsettled even after abort(), and the loop then slept until a reload. Now every wake
+     starts a NEW generation immediately (the old fetch is abandoned, its late result discarded), the first poll after a wake is a
+     wait=0 reconcile, and errors back off 300 ms → 8 s instead of hammering. Still single-flight: only the newest generation re-arms. */
   async function poll(){
-    if (polling) return; polling = true;
-    var ctl = null, kill = 0;
+    var my = ++gen, ctl = null, kill = 0, ok = false, w = fast ? 0 : 25; fast = false;
+    try { pollCtl && pollCtl.abort(); } catch(e) {}
     try {
-      try { ctl = new AbortController(); pollCtl = ctl; kill = setTimeout(function(){ try { ctl.abort(); } catch(e) {} }, 32000); } catch(e) { ctl = null; }
-      var r = await fetch(HUB + '/poll?session=' + sess + '&after=' + last + '&wait=25', ctl ? { signal: ctl.signal } : undefined);
+      try { ctl = new AbortController(); pollCtl = ctl; kill = setTimeout(function(){ try { ctl.abort(); } catch(e) {} }, w ? 32000 : 12000); } catch(e) { ctl = null; }
+      var r = await fetch(HUB + '/poll?session=' + encodeURIComponent(sess) + '&after=' + last + '&wait=' + w, ctl ? { signal: ctl.signal, cache: 'no-store' } : { cache: 'no-store' });
+      if (my !== gen) return;
+      if (r.status >= 500) throw new Error('hub ' + r.status);
       var d = await r.json();
-      lastBeat = Date.now();
-      (d.messages || []).forEach(function(m){ last = Math.max(last, m.seq); if (m.session === sess && !isEcho(m)) add(m.role, m.name || '', m.text); });
+      if (my !== gen) return;
+      ok = true; lastBeat = Date.now();
+      var real = false;
+      (d.messages || []).forEach(function(m){ last = Math.max(last, m.seq); if (m.session === sess && !isEcho(m)) { add(m.role, m.name || '', m.text); if (m.role !== 'visitor' && m.role !== 'system' && !m.holdNote && !m.sleepNote && !m.throttleNote) real = true; } });
+      var hubKnows = typeof d.pending === 'number';
+      if (real || (hubKnows && !d.pending && !d.typing)) think(false);
+      else if (d.pending || d.typing || awaiting) think(true);
     } catch(e) {}
     if (kill) clearTimeout(kill);
-    polling = false;
-    if (open) setTimeout(poll, 300); else setTimeout(poll, 8000);
+    if (my !== gen) return;
+    backoff = ok ? 300 : Math.min(backoff * 2, 8000);
+    setTimeout(poll, open ? backoff : 8000);
   }
-  /* wake law 2026-10-20 (Shaka: "i have to refresh the screen in order to see the responses"):
-     a backgrounded tab freezes its in-flight poll — on mobile the fetch can hang forever, so the
-     loop parks on that await and never re-arms, and replies only appear on reload. The fetch now
-     carries a 32s abort timer, and every wake (tab visible / window focus / bfcache restore /
-     network back) aborts the stuck request so the loop re-arms. A 15s heartbeat does the same if
-     nothing has been heard for 45s. No separate catch-up call here: this widget dedupes on the
-     `last` cursor alone, so a second concurrent poll would double-render. */
-  function kick(){ if (!open) return; try { pollCtl && pollCtl.abort(); } catch(e) {} setTimeout(poll, 0); }
+  /* wake law 2026-10-20 (Shaka: "i have to refresh the screen in order to see the responses"): every wake (tab visible / window
+     focus / back-forward restore / network back) restarts the loop in a fresh generation; a 15 s heartbeat does the same if
+     nothing has been heard for 45 s. */
+  function kick(){ if (!open) return; backoff = 300; fast = true; try { pollCtl && pollCtl.abort(); } catch(e) {} poll(); }
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) kick(); });
   window.addEventListener('focus', kick);
   window.addEventListener('online', kick);
@@ -262,9 +280,12 @@
     }
     add('visitor','you',t);
     echoed.push(t);
-    await fetch(HUB + '/send', { method:'POST', headers:{'content-type':'application/json'},
-      body: JSON.stringify({ session: sess, name: name, text: t }) });
-    setTimeout(poll, 500);
+    think(true);
+    var sr = null;
+    try { sr = await fetch(HUB + '/send', { method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ session: sess, name: name, text: t }) }); } catch(e) {}
+    if (sr && sr.status >= 400) { think(false); try { var se = await sr.json(); if (se && se.error) add('kprot', 'desk', String(se.error)); } catch(e) {} }
+    fast = true; poll();
   }
   fab.onclick = function(){ open = !open; panel.style.display = open ? 'flex' : 'none'; if (open){ greet(); poll(); } };
   document.getElementById('kprot-send').onclick = send;
